@@ -22,6 +22,7 @@ import DefaultActions from './Actions';
 import { crudGetList as crudGetListAction } from '../../actions/dataActions';
 import { changeListParams as changeListParamsAction } from '../../actions/listActions';
 import { refreshView as refreshViewAction } from '../../actions/uiActions';
+import { setResourceSelection as setResourceSelectionAction } from '../../actions/bulkActions';
 import translate from '../../i18n/translate';
 import removeKey from '../../util/removeKey';
 import defaultTheme from '../defaultTheme';
@@ -219,6 +220,7 @@ export class List extends Component {
             translate,
             theme,
             version,
+            setResourceSelection,
         } = this.props;
         const query = this.getQuery();
         const filterValues = query.filter;
@@ -264,34 +266,33 @@ export class List extends Component {
                             setFilters: this.setFilters,
                             context: 'form',
                         })}
-                    {isLoading || total > 0 ? (
-                        <div key={version}>
-                            {children &&
-                                React.cloneElement(children, {
-                                    resource,
-                                    ids,
-                                    data,
-                                    currentSort: {
-                                        field: query.sort,
-                                        order: query.order,
-                                    },
-                                    basePath,
-                                    isLoading,
-                                    setSort: this.setSort,
-                                })}
-                            {pagination &&
-                                React.cloneElement(pagination, {
-                                    total,
-                                    page: parseInt(query.page, 10),
-                                    perPage: parseInt(query.perPage, 10),
-                                    setPage: this.setPage,
-                                })}
-                        </div>
-                    ) : (
-                        <CardText style={styles.noResults}>
-                            {translate('aor.navigation.no_results')}
-                        </CardText>
-                    )}
+                    {isLoading || total > 0
+                        ? <div key={version}>
+                              {children &&
+                                  React.cloneElement(children, {
+                                      resource,
+                                      ids,
+                                      data,
+                                      currentSort: {
+                                          field: query.sort,
+                                          order: query.order,
+                                      },
+                                      basePath,
+                                      isLoading,
+                                      setSort: this.setSort,
+                                      onSelectionChange: setResourceSelection,
+                                  })}
+                              {pagination &&
+                                  React.cloneElement(pagination, {
+                                      total,
+                                      page: parseInt(query.page, 10),
+                                      perPage: parseInt(query.perPage, 10),
+                                      setPage: this.setPage,
+                                  })}
+                          </div>
+                        : <CardText style={styles.noResults}>
+                              {translate('aor.navigation.no_results')}
+                          </CardText>}
                 </Card>
             </div>
         );
@@ -373,6 +374,7 @@ const enhance = compose(
         changeListParams: changeListParamsAction,
         push: pushAction,
         refreshView: refreshViewAction,
+        setResourceSelection: setResourceSelectionAction,
     }),
     translate,
     withPermissionsFilteredChildren

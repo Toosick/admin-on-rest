@@ -37,7 +37,7 @@ const tasks = {};
  */
 function* finalize(resource, actionCreator) {
     // combined with cancel(), this debounces the calls
-    yield call(delay, 50);
+    yield call(delay, 300);
     yield put(actionCreator(resource, getIds(resource)));
     delete tasks[resource];
 }

@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import { Table, TableHeader, TableRow } from 'material-ui/Table';
+import RaisedButton from 'material-ui/RaisedButton';
+import ArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
+import Popover from 'material-ui/Popover';
+import Menu from 'material-ui/Menu';
+import MenuItem from 'material-ui/MenuItem';
 import DatagridHeaderCell from './DatagridHeaderCell';
 import DatagridBody from './DatagridBody';
 
@@ -17,7 +23,7 @@ const defaultStyles = {
             padding: 0,
         },
         'th:first-child': {
-            padding: '0 0 0 12px',
+            padding: '0 12px',
         },
     },
     cell: {
@@ -26,7 +32,7 @@ const defaultStyles = {
             whiteSpace: 'normal',
         },
         'td:first-child': {
-            padding: '0 12px 0 16px',
+            // padding: '0 12px',
             whiteSpace: 'normal',
         },
     },
@@ -70,9 +76,31 @@ const defaultStyles = {
  * </ReferenceManyField>
  */
 class Datagrid extends Component {
+    state = {
+        popoverOpen: false,
+    };
+    handleTouchTap = event => {
+        // This prevents ghost click.
+        event.preventDefault();
+
+        this.setState({
+            popoverOpen: true,
+            anchorEl: event.currentTarget,
+        });
+    };
+
+    handleRequestClose = () => {
+        this.setState({
+            popoverOpen: false,
+        });
+    };
     updateSort = event => {
         event.stopPropagation();
         this.props.setSort(event.currentTarget.dataset.sort);
+    };
+    handleRowActionClick = rowAction => () => {
+        this.handleRequestClose();
+        this.props.onRowActionClick(rowAction);
     };
 
     render() {
@@ -91,59 +119,111 @@ class Datagrid extends Component {
             headerOptions,
             bodyOptions,
             rowOptions,
+            rowActions,
+            selection,
+            onSelectionChange,
         } = this.props;
+        const hasRowActions = !_.isEmpty(rowActions);
         return (
-            <Table
-                style={options && options.fixedHeader ? null : styles.table}
-                fixedHeader={false}
-                {...options}
-            >
-                <TableHeader
-                    displaySelectAll={false}
-                    adjustForCheckbox={false}
-                    {...headerOptions}
+            <div>
+                {hasRowActions && (
+                    <div>
+                        <RaisedButton
+                            onClick={this.handleTouchTap}
+                            label="Actions"
+                            labelPosition="before"
+                            icon={<ArrowDown />}
+                            style={{ marginLeft: '16px' }}
+                        />
+                        <Popover
+                            open={this.state.popoverOpen}
+                            anchorEl={this.state.anchorEl}
+                            onRequestClose={this.handleRequestClose}
+                            useLayerForClickAway={false}
+                            style={{ zIndex: 1499 }}
+                            onClick={this.handleRequestClose}
+                        >
+                            <Menu>
+                                {rowActions.map((rowAction, i) => {
+                                    const newProps = _.omit(
+                                        rowAction,
+                                        'confirmText'
+                                    );
+                                    return (
+                                        <MenuItem
+                                            key={i}
+                                            {...newProps}
+                                            onClick={this.handleRowActionClick(
+                                                rowAction
+                                            )}
+                                        />
+                                    );
+                                })}
+                            </Menu>
+                        </Popover>
+                    </div>
+                )}
+                <Table
+                    style={options && options.fixedHeader ? null : styles.table}
+                    fixedHeader={false}
+                    multiSelectable={!!rowActions}
+                    onRowSelection={
+                        onSelectionChange
+                            ? _.bind(onSelectionChange, this, ids, resource)
+                            : _.noop
+                    }
+                    {...options}
                 >
-                    <TableRow style={muiTheme.tableRow}>
-                        {React.Children.map(
-                            children,
-                            (field, index) =>
-                                field ? (
-                                    <DatagridHeaderCell
-                                        key={field.props.source || index}
-                                        field={field}
-                                        defaultStyle={
-                                            index === 0 ? (
-                                                styles.header['th:first-child']
-                                            ) : (
-                                                styles.header.th
-                                            )
-                                        }
-                                        currentSort={currentSort}
-                                        isSorting={
-                                            field.props.source ===
-                                            currentSort.field
-                                        }
-                                        updateSort={this.updateSort}
-                                        resource={resource}
-                                    />
-                                ) : null
-                        )}
-                    </TableRow>
-                </TableHeader>
-                <DatagridBody
-                    resource={resource}
-                    ids={ids}
-                    data={data}
-                    basePath={basePath}
-                    styles={styles}
-                    rowStyle={rowStyle}
-                    isLoading={isLoading}
-                    options={bodyOptions}
-                    rowOptions={rowOptions}
-                >
-                    {children}
-                </DatagridBody>
-            </Table>
+                    <TableHeader
+                        displaySelectAll={hasRowActions}
+                        enableSelectAll={hasRowActions}
+                        adjustForCheckbox={hasRowActions}
+                        {...headerOptions}
+                    >
+                        <TableRow style={muiTheme.tableRow}>
+                            {React.Children.map(
+                                children,
+                                (field, index) =>
+                                    field ? (
+                                        <DatagridHeaderCell
+                                            key={field.props.source || index}
+                                            field={field}
+                                            defaultStyle={
+                                                index === 0
+                                                    ? styles.header[
+                                                          'th:first-child'
+                                                      ]
+                                                    : styles.header.th
+                                            }
+                                            currentSort={currentSort}
+                                            isSorting={
+                                                field.props.source ===
+                                                currentSort.field
+                                            }
+                                            updateSort={this.updateSort}
+                                            resource={resource}
+                                        />
+                                    ) : null
+                            )}
+                        </TableRow>
+                    </TableHeader>
+                    <DatagridBody
+                        resource={resource}
+                        ids={ids}
+                        data={data}
+                        basePath={basePath}
+                        styles={styles}
+                        rowStyle={rowStyle}
+                        isLoading={isLoading}
+                        options={bodyOptions}
+                        rowOptions={rowOptions}
+                        rowActions={rowActions}
+                        selection={selection}
+                    >
+                        {children}
+                    </DatagridBody>
+                </Table>
+            </div>
         );
     }
 }
@@ -171,6 +251,7 @@ Datagrid.propTypes = {
 Datagrid.defaultProps = {
     data: {},
     ids: [],
+    selection: [],
 };
 
 export default muiThemeable()(Datagrid);
