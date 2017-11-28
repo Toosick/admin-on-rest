@@ -10,8 +10,7 @@
   ],
   "main": "lib/index",
   "scripts": {
-    "test": "make test",
-    "publish": "npm publish --access public"
+    "test": "make test"
   },
   "authors": [
     "François Zaninotto"
