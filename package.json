@@ -81,5 +81,8 @@
     "redux-form": "~7.0.3",
     "redux-saga": "~0.15.0",
     "reselect": "~3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
