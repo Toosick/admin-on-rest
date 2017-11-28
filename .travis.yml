@@ -21,7 +21,7 @@ before_script:
     - echo "https://${GITHUB_TOKEN}:@github.com" > .git/credentials
     - yarn
     - make build
-    - ./nodu_modules/.bin/np prerelease --tag multi-action --any-branch
+    - ./node_modules/.bin/np prerelease --tag multi-action --any-branch
     - git push origin v1.3.2-with-multi-actions
 #branches:
 #  only:
