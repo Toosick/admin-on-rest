@@ -1,6 +1,6 @@
 {
-    "name": "admin-on-rest",
-    "version": "1.3.2",
+    "name": "@iolap/admin-on-rest",
+    "version": "1.3.2-0.0.1",
     "description": "A frontend Framework for building admin applications on top of REST services, using ES6, React and Material UI",
     "files": [
         "*.md",
@@ -10,13 +10,14 @@
     ],
     "main": "lib/index",
     "scripts": {
-        "test": "make test"
+        "test": "make test",
+        "publish": "npm publish --access public"
     },
     "authors": [
         "François Zaninotto"
     ],
     "repository": "marmelab/admin-on-rest",
-    "homepage": "https://github.com/marmelab/admin-on-rest#readme",
+    "homepage": "https://github.com/iolap/admin-on-rest#readme",
     "bugs": "https://github.com/marmelab/admin-on-rest/issues",
     "license": "MIT",
     "devDependencies": {
