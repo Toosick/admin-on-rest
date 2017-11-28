@@ -12,19 +12,18 @@ cache:
     directories:
         - node_modules
 before_install:
-    - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
-    - sh -e /etc/init.d/xvfb start
-    - sleep 3
-install:
-    - yarn
-before_script:
     - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
     - git config credential.helper "store --file=.git/credentials"
     - echo "https://${GITHUB_TOKEN}:@github.com" > .git/credentials
     - git checkout v1.3.2-with-multi-actions
-script:
+    - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
+    - sh -e /etc/init.d/xvfb start
+    - sleep 3
+install:
+    - yarn install --production=false
     - make build
     - ./node_modules/.bin/np prerelease --tag multi-action --any-branch
+    - OLD_MESSAGE=$(git log -1 --pretty=%B) && git commit --amend -m "$OLD_MESSAGE [ci skip]"
     - git push origin v1.3.2-with-multi-actions
 #branches:
 #  only:
