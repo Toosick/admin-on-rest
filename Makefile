@@ -10,7 +10,7 @@ run: example_install ## run the example
 	@cd example && ./node_modules/.bin/webpack-dev-server --hot --inline --config ./webpack.config.js
 
 example_install: example/package.json
-	@cd example && npm install
+	@cd example && yarn
 
 clean:
 	@rm -rf lib

@@ -20,7 +20,7 @@ before_script:
     - git config credential.helper "store --file=.git/credentials"
     - echo "https://${GITHUB_TOKEN}:@github.com" > .git/credentials
     - make example_install
-    - ./nodu_modules/np prerelease --tag multi-action --any-branch
+    - ./nodu_modules/.bin/np prerelease --tag multi-action --any-branch
     - git push origin v1.3.2-with-multi-actions
 #branches:
 #  only:
