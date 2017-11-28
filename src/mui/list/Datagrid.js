@@ -145,10 +145,10 @@ class Datagrid extends Component {
                         >
                             <Menu>
                                 {rowActions.map((rowAction, i) => {
-                                    const newProps = _.omit(
-                                        rowAction,
-                                        'confirmText'
-                                    );
+                                    const newProps = _.omit(rowAction, [
+                                        'confirmText',
+                                        'extraContent',
+                                    ]);
                                     return (
                                         <MenuItem
                                             key={i}
