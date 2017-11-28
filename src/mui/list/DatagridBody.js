@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import shouldUpdate from 'recompose/shouldUpdate';
 import { TableBody, TableRow } from 'material-ui/Table';
@@ -7,52 +8,56 @@ import DatagridCell from './DatagridCell';
 const DatagridBody = ({
     resource,
     children,
-    ids,
     isLoading,
+    ids,
     data,
     basePath,
     styles,
     rowStyle,
     options,
     rowOptions,
+    rowActions,
+    selection,
     ...rest
-}) => (
-    <TableBody
-        displayRowCheckbox={false}
-        className="datagrid-body"
-        {...rest}
-        {...options}
-    >
-        {ids.map((id, rowIndex) => (
-            <TableRow
-                style={rowStyle ? rowStyle(data[id], rowIndex) : styles.tr}
-                key={id}
-                selectable={false}
-                {...rowOptions}
-            >
-                {React.Children.map(
-                    children,
-                    (field, index) =>
-                        field ? (
-                            <DatagridCell
-                                key={`${id}-${field.props.source || index}`}
-                                className={`column-${field.props.source}`}
-                                record={data[id]}
-                                defaultStyle={
-                                    index === 0 ? (
-                                        styles.cell['td:first-child']
-                                    ) : (
-                                        styles.cell.td
-                                    )
-                                }
-                                {...{ field, basePath, resource }}
-                            />
-                        ) : null
-                )}
-            </TableRow>
-        ))}
-    </TableBody>
-);
+}) => {
+    const hasRowActions = !_.isEmpty(rowActions);
+    return (
+        <TableBody
+            displayRowCheckbox={hasRowActions}
+            deselectOnClickaway={false}
+            className="datagrid-body"
+            {...rest}
+            {...options}
+        >
+            {ids.map((id, rowIndex) => (
+                <TableRow
+                    style={rowStyle ? rowStyle(data[id], rowIndex) : styles.tr}
+                    key={id}
+                    selected={selection.includes(id)}
+                    {...rowOptions}
+                >
+                    {React.Children.map(
+                        children,
+                        (field, index) =>
+                            field ? (
+                                <DatagridCell
+                                    key={`${id}-${field.props.source || index}`}
+                                    className={`column-${field.props.source}`}
+                                    record={data[id]}
+                                    defaultStyle={
+                                        index === 0
+                                            ? styles.cell['td:first-child']
+                                            : styles.cell.td
+                                    }
+                                    {...{ field, basePath, resource }}
+                                />
+                            ) : null
+                    )}
+                </TableRow>
+            ))}
+        </TableBody>
+    );
+};
 
 DatagridBody.propTypes = {
     ids: PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -64,6 +69,9 @@ DatagridBody.propTypes = {
     rowOptions: PropTypes.object,
     styles: PropTypes.object,
     rowStyle: PropTypes.func,
+    children: PropTypes.node,
+    selection: PropTypes.array,
+    rowActions: PropTypes.array,
 };
 
 DatagridBody.defaultProps = {
