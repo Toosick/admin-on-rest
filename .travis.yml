@@ -25,8 +25,7 @@ install:
     - ls node_modules/.bin
     - ./node_modules/.bin/np prerelease --tag multi-action --any-branch
     - OLD_MESSAGE=$(git log -1 --pretty=%B) && git commit --amend -m "$OLD_MESSAGE [ci skip]"
-    - git push --follow-tags origin v1.3.2-with-multi-actions
-    - git push --tags
+    - git push --tags origin v1.3.2-with-multi-actions
 # trigger2
 #branches:
 #  only:
