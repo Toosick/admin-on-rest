@@ -4,3 +4,8 @@ lib
 es6
 example/static
 docs/_site/
+.idea/
+example/yarn.lock
+src/mui/button/BulkDeleteButton.js
+test.js
+yarn-error.log
